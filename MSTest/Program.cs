@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
@@ -13,7 +14,7 @@ namespace MSTest
         static void Main(string[] args)
         {
             IWebDriver driver = new ChromeDriver();
-
+            var anInstanceofMyClassProgram = new Program();
             Actions actions = new Actions(driver);
             driver.Url = "https://www.sogeti.com/";
             driver.Manage().Window.Maximize();
@@ -35,11 +36,10 @@ namespace MSTest
                 }
             }
             String PageTitle = driver.FindElement(By.XPath("/html/head/title")).GetAttribute("innerHTML");
-            String AutomationText = driver.FindElement(By.XPath("/html/body/div[1]/main/div[3]/div/div[1]/div[2]/div")).GetAttribute("innerHTML");
-            if (PageTitle.Contains("Automation")  && AutomationText.Contains("AUTOMATION"))
-            {
-                Console.WriteLine("The Automation screen along with AUTOMATION text is displayed!");
-            }
+            //String AutomationText = driver.FindElement(By.XPath("/html/body/div[1]/main/div[3]/div/div[1]/div[2]/div")).GetAttribute("innerHTML");
+            String AutomationText = driver.FindElement(By.ClassName("case-item-box")).Text;
+            Assert.AreEqual("Automation", PageTitle,"Automation text is not Visible");
+            Assert.AreEqual("AUTOMATION", AutomationText,"Automation page is not Displayed");
             try
             {
                 actions.MoveToElement(serviceOption).Perform();
@@ -54,10 +54,18 @@ namespace MSTest
             WebElement automationColor = (WebElement)driver.FindElement(By.XPath("/html/body/div[1]/header/div[2]/nav/ul/li[3]/div[1]/span"));
             String rgbFormatofServiceColor = serviceColor.GetCssValue("color");
             String rgbFormatofAutomationColor = automationColor.GetCssValue("color");
-            if(rgbFormatofAutomationColor.Contains(rgbFormatofServiceColor))
-            {
-                Console.WriteLine("Services and Automation are Selected");
-            }
+            anInstanceofMyClassProgram.RgbaToHex(rgbFormatofServiceColor);
+            anInstanceofMyClassProgram.RgbaToHex(rgbFormatofAutomationColor);
+        }
+        public void RgbaToHex(String RgbaValue)
+        {
+            string[] colorvalue1 = RgbaValue.Split('(');
+            string[] colorvalue2 = colorvalue1[1].Split(')');
+            string colorvalue = colorvalue2[0].ToString();
+            string[] ColorCodeRGBValue = colorvalue.Split(',');
+            Color myColor = Color.FromArgb(Convert.ToInt32(ColorCodeRGBValue[0]), Convert.ToInt32(ColorCodeRGBValue[1]), Convert.ToInt32(ColorCodeRGBValue[2]));
+            string hexValue = "#"+myColor.R.ToString("X2") + myColor.G.ToString("X2") + myColor.B.ToString("X2");
+            Assert.AreEqual(hexValue, "#FF304C", "Color codes are not equal");
         }
     }
 }
